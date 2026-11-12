@@ -1,0 +1,68 @@
+<section class="screen" aria-labelledby="universe-title">
+  <div class="stat-grid" aria-label="Dataset summary"></div>
+  <div class="universe">
+    <div class="universe-heading">
+      <div>
+        <h2 id="universe-title">Company universe</h2>
+        <div class="dataset"></div>
+      </div>
+      <span class="local-count" aria-live="polite"></span>
+    </div>
+    <div class="toolbar">
+      <div class="filter">
+        <span id="sector-label" class="filter-label">Sector</span>
+        <details class="sector-picker">
+          <summary aria-labelledby="sector-label sector-summary"><span id="sector-summary">All sectors</span><span class="caret" aria-hidden="true"></span></summary>
+          <div class="sector-menu"></div>
+        </details>
+      </div>
+      <div class="filter">
+        <span id="cap-label" class="filter-label">Market cap</span>
+        <div class="segments" data-filter="cap" role="group" aria-labelledby="cap-label"></div>
+      </div>
+      <div class="filter">
+        <span id="verdict-label" class="filter-label">Verdict</span>
+        <div class="segments" data-filter="verdict" role="group" aria-labelledby="verdict-label"></div>
+      </div>
+      <div class="filter search">
+        <label class="filter-label" for="company-search">Company search</label>
+        <div class="search-field"><span class="magnifier" aria-hidden="true"></span><input id="company-search" type="search" placeholder="Company or ticker"></div>
+      </div>
+    </div>
+    <div class="table-wrap" tabindex="0" aria-label="Scrollable company results">
+      <table>
+        <thead><tr>
+          <th scope="col"><button type="button" data-sort="company">Company</button></th>
+          <th scope="col">Sector</th>
+          <th scope="col">Cap size</th>
+          <th scope="col" class="numeric"><button type="button" data-sort="tax">Tax burden</button></th>
+          <th scope="col" class="numeric"><button type="button" data-sort="interest">Interest burden</button></th>
+          <th scope="col" class="numeric"><button type="button" data-sort="margin">Operating margin</button></th>
+          <th scope="col" class="numeric"><button type="button" data-sort="turnover">Asset turnover</button></th>
+          <th scope="col" class="numeric"><button type="button" data-sort="leverage">Equity multiplier</button></th>
+          <th scope="col" class="numeric"><button type="button" data-sort="roe">ROE</button></th>
+          <th scope="col">Verdict</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span class="page-range" aria-live="polite"></span>
+      <div><button type="button" class="prev">Previous</button><span class="page-index"></span><button type="button" class="next">Next</button></div>
+    </div>
+  </div>
+  <dialog class="drawer" aria-labelledby="drawer-title">
+    <div class="drawer-content">
+      <div class="drawer-top">
+        <div><div class="company-meta"></div><h2 id="drawer-title"></h2></div>
+        <button type="button" class="close" aria-label="Close company details" autofocus>×</button>
+      </div>
+      <div class="analysis-summary">
+        <div><div class="rule-heading"></div><p class="rule-reason"></p></div>
+        <div class="headline-metrics"></div>
+      </div>
+      <div class="ratio-grid"></div>
+      <div class="row-notes"></div>
+    </div>
+  </dialog>
+</section>

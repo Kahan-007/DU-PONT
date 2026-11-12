@@ -173,6 +173,14 @@ tbody tr[data-index]:hover, tbody tr[data-index]:focus-within { background: #fff
 .company-meta { color: #e2ebf7; }
 .ratio-card { border-top: 4px solid #003366; }
 .diagnostic { background: #edf1f8; }
+.ratio-decimal, .filing-period { display: block; color: var(--muted); font-size: calc(10px + 2pt); font-weight: 400; }
+.filing-period { margin-top: 3px; }
+.ratio-value .ratio-decimal { letter-spacing: 0; }
+.filing-sources { display: flex; flex-wrap: wrap; gap: 12px; }
+.filing-sources a { color: #003399; text-decoration: underline; }
+.filing-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin: 6px 0 12px; }
+.filing-inputs > div { padding: 8px; background: #e8edf5; }
+.filing-inputs dd { margin: 3px 0 0; color: #003366; font: bold 1em "Courier New", monospace; }
 @media (max-width: 640px) {
   .drawer-top { margin: -14px -14px 0; padding-inline: 14px; }
   .segments { flex-wrap: wrap; }

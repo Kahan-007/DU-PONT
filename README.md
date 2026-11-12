@@ -4,7 +4,11 @@ Open the [live screener](https://kahan-007.github.io/DU-PONT/) and select **Down
 
 Use the filters and sortable columns to narrow the results, and select a company to see its ratios and verdict.
 
-The published company inputs are in `data/stocks.csv`. Run `python build_web.py` to rebuild both the GitHub Pages entry point and the offline file after changing the data or shared screen assets. The optional `--workbook` argument refreshes the CSV from the cleaned Excel worksheet.
+The browser app uses `data/latest.csv`, reconciled against [NSE Integrated Filing – Financials](https://www.nseindia.com/companies-listing/corporate-integrated-filing) on 13 November 2026. Each company shows its reporting period, filing links, and financial inputs in ₹ crore. The company universe comes from the original workbook in `data/stocks.csv`.
+
+Trailing 12-month income figures combine the last full year with the current year-to-date figures and subtract the comparable prior-year period. The calculations use average opening and closing balances when both are available. EBIT equals profit before tax plus reported finance costs. Sector benchmarks use companies with the same reporting period and end date. The historical GSPL row uses the September 2025 filing, before its amalgamation into Gujarat Energy.
+
+Run `python build_web.py` to rebuild the site and offline file from the published data. Use `--workbook` to export the cleaned worksheet and build the original workbook view.
 
 ## Screen your own file
 

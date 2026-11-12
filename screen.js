@@ -2,6 +2,7 @@ const PAGE_SIZE = 15;
 const RATIOS = ["tax", "interest", "margin", "turnover", "leverage"];
 const PERCENT = new Intl.NumberFormat("en", { style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const MULTIPLE = new Intl.NumberFormat("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const DECIMAL = new Intl.NumberFormat("en", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
 const INTEGER = new Intl.NumberFormat("en");
 const COLLATOR = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
@@ -22,6 +23,13 @@ function format(value, metric) {
 function valueNode(tag, className, value, metric) {
   const node = element(tag, className, format(value, metric));
   if (value !== null) node.title = `Unrounded ratio ${value}`;
+  return node;
+}
+
+function withDecimal(node, value, metric) {
+  if (value !== null && metric !== "turnover" && metric !== "leverage") {
+    node.append(element("small", "ratio-decimal", DECIMAL.format(value)));
+  }
   return node;
 }
 
@@ -86,11 +94,15 @@ export default function ({ parentElement, data }) {
     open.setAttribute("aria-haspopup", "dialog");
     company.append(open);
     if (row.ticker && row.ticker !== row.company) company.append(element("span", "ticker", row.ticker));
+    if (row.filing) {
+      company.append(element("span", "filing-period", [row.filing.period, row.filing.end].filter(Boolean).join(" · ")));
+    }
     const cap = element("td", "cap-cell");
     cap.append(element("span", "cap-label", row.cap));
     tr.append(company, element("td", "sector-cell", row.sector), cap);
     for (const key of [...RATIOS, "roe"]) {
-      tr.append(valueNode("td", key === "roe" ? "numeric roe" : "numeric", row.ratios[key], key));
+      const value = row.ratios[key];
+      tr.append(withDecimal(valueNode("td", key === "roe" ? "numeric roe" : "numeric", value, key), value, key));
     }
     const verdict = element("td", "verdict-cell");
     verdict.append(badge(row.verdict), element("span", "row-arrow", "›"));
@@ -209,7 +221,7 @@ export default function ({ parentElement, data }) {
     const peerComparison = element("p", "median", summary);
     if (card.band && card.band !== "Unscored") peerComparison.append(element("span", "band", card.band));
     section.append(
-      heading, valueNode("div", "ratio-value", row.ratios[key], key), peerComparison,
+      heading, withDecimal(valueNode("div", "ratio-value", row.ratios[key], key), row.ratios[key], key), peerComparison,
       element("p", "ratio-description", card.description), element("p", "diagnostic", card.detail),
     );
     if (card.quartiles.length) {
@@ -237,19 +249,45 @@ export default function ({ parentElement, data }) {
     const headline = find(".headline-metrics");
     headline.replaceChildren(...metrics.map(([label, value, key]) => {
       const group = element("div");
-      group.append(element("span", "", label), valueNode("b", "", value, key));
+      group.append(element("span", "", label), withDecimal(valueNode("b", "", value, key), value, key));
       if (key === "roa" && row.roa_median !== null) {
         group.append(element("span", "", `Sector median ${format(row.roa_median, "roa")}`));
       }
       return group;
     }));
     const peerCount = element("div");
-    peerCount.append(element("span", "", "Sector sample"), element("b", "", countText(row.peer_count, "row")));
+    peerCount.append(element("span", "", row.filing ? "Same-period sector sample" : "Sector sample"),
+      element("b", "", countText(row.peer_count, "row")));
     headline.append(peerCount);
     find(".ratio-grid").replaceChildren(...RATIOS.map((key) => ratioCard(row, key)));
     const notes = find(".row-notes");
-    const sourceRow = element("p", "source-row", `Source row ${row.line}`);
-    notes.replaceChildren(sourceRow);
+    notes.replaceChildren();
+    if (row.filing) {
+      const filing = row.filing;
+      const period = [filing.period, filing.end, filing.scope].filter(Boolean).join(" · ");
+      notes.append(element("p", "source-row", period));
+      if (filing.note) notes.append(element("p", "", filing.note));
+      const sources = element("div", "filing-sources");
+      const labels = ["Current filing", "Annual filing", "Prior filing"];
+      filing.sources.forEach((url, index) => {
+        if (!url.startsWith("https://nsearchives.nseindia.com/")) return;
+        const link = element("a", "", labels[index]);
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        sources.append(link);
+      });
+      notes.append(sources);
+      const inputs = element("dl", "filing-inputs");
+      for (const [label, amount] of Object.entries(row.inputs)) {
+        const group = element("div");
+        group.append(element("dt", "", label), element("dd", "", amount === null ? "—" : MULTIPLE.format(amount)));
+        inputs.append(group);
+      }
+      notes.append(element("p", "source-row", "Financial inputs (₹ crore)"), inputs);
+    } else {
+      notes.append(element("p", "source-row", `Source row ${row.line}`));
+    }
     if (row.notes.length) {
       const list = element("ul");
       for (const note of row.notes) list.append(element("li", "", note));

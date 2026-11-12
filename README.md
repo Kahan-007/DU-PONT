@@ -1,8 +1,10 @@
 # DuPont Screener
 
-Open `index.html` in a browser to screen the 150 stocks from the Cleaned 5-Point DuPont dataset. The page includes the data, so it works offline after cloning or downloading the repository. Use the filters and sortable columns to narrow the results, and select a company to see its ratios and verdict.
+Open the [live screener](https://kahan-007.github.io/DU-PONT/) and select **Download offline app**. Double-click `DuPont-Screener.html` to run it in your browser. The file includes all 150 stocks, the interface, and the methodology PDF. You can move the file anywhere and open it offline.
 
-The published company inputs are in `data/stocks.csv`. Run `python build_web.py` to rebuild the browser page after changing the data or shared screen assets. The optional `--workbook` argument refreshes the CSV from the cleaned Excel worksheet.
+Use the filters and sortable columns to narrow the results, and select a company to see its ratios and verdict.
+
+The published company inputs are in `data/stocks.csv`. Run `python build_web.py` to rebuild both the GitHub Pages entry point and the offline file after changing the data or shared screen assets. The optional `--workbook` argument refreshes the CSV from the cleaned Excel worksheet.
 
 ## Screen your own file
 

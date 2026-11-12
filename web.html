@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Explore five-factor DuPont analysis across 150 companies.">
+  <link rel="icon" href="data:,">
   <title>DuPont Screener</title>
   <style>
 $styles
@@ -16,7 +17,10 @@ $styles
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>Equity Research</span>
       </div>
-      <a class="guide-link" href="DuPont_Methodology_Guide.pdf" download>Methodology PDF</a>
+      <div class="web-actions">
+        <a class="guide-link" href="data:application/pdf;base64,$guide" download="DuPont_Methodology_Guide.pdf">Methodology PDF</a>
+        <a class="guide-link" id="download-app" href="./DuPont-Screener.html" download hidden>Download offline app</a>
+      </div>
     </header>
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
@@ -36,6 +40,9 @@ $screen
   <script>
 $script
     mountScreen({ parentElement: document, data: JSON.parse(document.getElementById("stock-data").textContent) });
+    if (location.protocol === "https:" || location.protocol === "http:") {
+      document.getElementById("download-app").hidden = false;
+    }
   </script>
 </body>
 </html>

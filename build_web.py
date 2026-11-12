@@ -1,6 +1,7 @@
 """Build the static screener from the published company CSV."""
 
 import argparse
+from base64 import b64encode
 import csv
 import json
 from pathlib import Path
@@ -44,9 +45,11 @@ def build():
     styles = "\n".join((ROOT / name).read_text(encoding="utf-8") for name in ("app.css", "screen.css", "web.css"))
     script = (ROOT / "screen.js").read_text(encoding="utf-8").replace("export default function (", "function mountScreen(", 1)
     template = Template((ROOT / "web.html").read_text(encoding="utf-8"))
+    guide = b64encode((ROOT / "DuPont_Methodology_Guide.pdf").read_bytes()).decode("ascii")
     html = template.substitute(styles=styles, screen=(ROOT / "screen.html").read_text(encoding="utf-8"),
-                               data=payload, script=script)
-    (ROOT / "index.html").write_text(html, encoding="utf-8", newline="\n")
+                               data=payload, script=script, guide=guide)
+    for name in ("index.html", "DuPont-Screener.html"):
+        (ROOT / name).write_text(html, encoding="utf-8", newline="\n")
     print(f"Built browser app with {len(rows)} stocks")
 
 

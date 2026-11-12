@@ -1,8 +1,12 @@
 # DuPont Screener
 
-The Streamlit app calculates the five-factor DuPont identity, compares companies with uploaded sector peers, and shows the rule behind each verdict. The app processes files in memory on your computer and listens on the loopback address.
+Open `index.html` in a browser to screen the 150 stocks from the Cleaned 5-Point DuPont dataset. The page includes the data, so it works offline after cloning or downloading the repository. Use the filters and sortable columns to narrow the results, and select a company to see its ratios and verdict.
 
-## Run locally
+The published company inputs are in `data/stocks.csv`. Run `python build_web.py` to rebuild the browser page after changing the data or shared screen assets. The optional `--workbook` argument refreshes the CSV from the cleaned Excel worksheet.
+
+## Screen your own file
+
+The optional Streamlit app calculates the same ratios for an uploaded file and listens on the loopback address.
 
 Clone this repository and run the following commands from its root with Python 3.11 or newer. On systems that expose Python as `python3`, use that command in both lines.
 

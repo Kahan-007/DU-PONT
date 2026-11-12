@@ -1,0 +1,151 @@
+Company,NSE Symbol,Sector,Cap Category,Revenue (INR Cr),EBIT (INR Cr),EBT (INR Cr),Net Income (INR Cr),Total Assets (INR Cr),Total Equity (INR Cr)
+Reliance Industries,RELIANCE,Energy and Oil,Large Cap,1055780,150223,123162,95754,2177546,1085866
+NTPC,NTPC,Energy and Oil,Large Cap,187385,45999,32198,27546,558442,211153
+Adani Power,ADANIPOWER,Energy and Oil,Large Cap,54241,18867,15500,12971,141469,66402
+ONGC,ONGC,Energy and Oil,Large Cap,608663,80652,67623,49793,785602,409693
+Coal India,COALINDIA,Energy and Oil,Large Cap,168400,43139,41923,31071,283956,121005
+Power Grid,POWERGRID,Energy and Oil,Large Cap,46733,27742,19294,15928,294674,100494
+Indian Oil,IOC,Energy and Oil,Large Cap,784415,65826,57472,43677,529352,225548
+Adani Green Energy,ADANIGREEN,Energy and Oil,Large Cap,12928,8485,2001,1987,142988,29879
+BPCL,BPCL,Energy and Oil,Large Cap,455228,37744,34791,25843,248616,100171
+Tata Power,TATAPOWER,Energy and Oil,Large Cap,62429,11893,6636,5118,174564,47539
+JSW Energy,JSWENERGY,Energy and Oil,Mid Cap,18901,7440,2214,2762,123807,33577
+Waaree,WAAREEENER,Energy and Oil,Mid Cap,26537,5332,5052,3884,29985,15012
+HPCL,HINDPETRO,Energy and Oil,Mid Cap,441771,27034,23638,18047,203064,65556
+NTPC Green,NTPCGREEN,Energy and Oil,Mid Cap,2858,1581,683,521,60382,19189
+NHPC,NHPC,Energy and Oil,Mid Cap,11615,5317,3894,4220,120007,48405
+Oil India,OIL,Energy and Oil,Mid Cap,33081,10786,9582,7551,124245,63803
+Torrent Power,TORNTPOWER,Energy and Oil,Mid Cap,28966,4251,3317,2469,45045,19708
+Suzlon,SUZLON,Energy and Oil,Mid Cap,16732,2884,2422,3163,18869,9464
+Adani Total Gas,ATGL,Energy and Oil,Mid Cap,5894,1011,882,656,9549,4865
+Petronet LNG,PETRONET,Energy and Oil,Mid Cap,43495,5361,5124,3913,27472,22285
+MRPL,MRPL,Energy and Oil,Small Cap,88627.37,4845.7,4014.89,1924.58,44481.24,14196.87
+SJVN,SJVN,Energy and Oil,Small Cap,4244.17,2125.27,1200.63,642.08,51765.53,14238.84
+Gujarat Gas,GUJGASLTD,Energy and Oil,Small Cap,16695.24,1580.12,1549.41,1148.32,12651.11,8453.65
+Aegis Logistics,AEGISLOG,Energy and Oil,Small Cap,8333,1579,1433,1107,14269,8784
+Indraprastha Gas,IGL,Energy and Oil,Small Cap,16106.64,1992.02,1985.17,1549.62,17028.36,11504.44
+CESC,CESC,Energy and Oil,Small Cap,18570.34,3581.54,2118.53,1541.99,46470.17,12530.34
+Castrol India,CASTROLIND,Energy and Oil,Small Cap,5700.32,1291.6,1282.31,949.93,3394.85,1900.3
+Inox Wind,INOXWIND,Energy and Oil,Small Cap,4211.3,775.68,659.12,405.04,12067.77,6382.49
+Gujarat State Petronet,GSPL,Energy and Oil,Small Cap,16290,2185,2149,1585,20806.98,11645.78
+Chennai Petroleum,CHENNPETRO,Energy and Oil,Small Cap,63550.75,4282.49,4162.47,3102.7,20034.62,11109.21
+L&T,LT,Capital Goods and Industrials,Large Cap,285874,36032,25976,18954,452383,128531
+Bharat Electronics,BEL,Capital Goods and Industrials,Large Cap,27610,8063,8053,6062,44527,24007
+HAL,HAL,Capital Goods and Industrials,Large Cap,33089,12176,12152,9116,134395,41044
+Cummins India,CUMMINSIND,Capital Goods and Industrials,Large Cap,12143,3098,3086,2362,11304,8475
+ABB India,ABB,Capital Goods and Industrials,Large Cap,13203,2249,2229,1668,13638,7836
+Polycab,POLYCAB,Capital Goods and Industrials,Large Cap,28884,3856,3613,2708,20465,12127
+Hitachi Energy India,POWERINDIA,Capital Goods and Industrials,Large Cap,8148,1349,1321,988,12044,5176
+Siemens,SIEMENS,Capital Goods and Industrials,Large Cap,24846,3598,3525,2754,21213,13851
+CG Power,CGPOWER,Capital Goods and Industrials,Large Cap,12418,1653,1628,1199,12644,8198
+BHEL,BHEL,Capital Goods and Industrials,Large Cap,33782,3125,2139,1600,76888,26146
+Siemens Energy India,ENRIN,Capital Goods and Industrials,Mid Cap,7827,1527,1488,1100,9545,4381
+GE Vernova T&D,GVT&D,Capital Goods and Industrials,Mid Cap,6206,1685,1650,1233,7739,2690
+Mazagon Dock,MAZDOCK,Capital Goods and Industrials,Mid Cap,13006,3311,3237,2578,27474,9984
+Havells,HAVELLS,Capital Goods and Industrials,Mid Cap,22528,2289,2210,1689,14746,9469
+Linde India,LINDEINDIA,Capital Goods and Industrials,Mid Cap,2531,747,733,549,5808,4266
+Bharat Dynamics,BDL,Capital Goods and Industrials,Mid Cap,2442,573,568,420,14326,4241
+KEI Industries,KEI,Capital Goods and Industrials,Mid Cap,11748,1296,1232,918,8956,6665
+Thermax,THERMAX,Capital Goods and Industrials,Mid Cap,10774,1147,1008,720,13242,5579
+Cochin Shipyard,COCHINSHIP,Capital Goods and Industrials,Mid Cap,4774.59,1091.41,999.03,716.74,14530.65,5872.76
+AIA Engineering,AIAENG,Capital Goods and Industrials,Mid Cap,4420,1634,1592,1269,8532,8035
+Garden Reach Shipbuilders,GRSE,Capital Goods and Industrials,Small Cap,6994.81,1020.81,1004.7,747.93,10636.1,2626.12
+Honeywell Automation,HONAUT,Capital Goods and Industrials,Small Cap,4678.5,718.5,708.8,525,6229,4462.7
+Timken India,TIMKEN,Capital Goods and Industrials,Small Cap,3462.36,556.37,552.63,414.88,3700.33,2914.57
+Schneider Electric Infrastructure,SCHNEIDER,Capital Goods and Industrials,Small Cap,2869.95,339.95,291.58,212.56,2343.83,774.42
+Kirloskar Oil Engines,KIRLOSENG,Capital Goods and Industrials,Small Cap,7641.29,1241.25,756.27,574.32,10852.44,3620.19
+Data Patterns,DATAPATTNS,Capital Goods and Industrials,Small Cap,924.77,364.07,363.54,271.37,1929.22,1735.97
+Grindwell Norton,GRINDWELL,Capital Goods and Industrials,Small Cap,3060.36,563.53,555.36,415.66,3437.86,2534.75
+Triveni Turbine,TRITURBINE,Capital Goods and Industrials,Small Cap,2159.04,475.66,473.13,349.7,2496.82,1446.02
+Elgi Equipments,ELGIEQUIP,Capital Goods and Industrials,Small Cap,3929.5,602.8,577.4,430.2,3545.5,2231.9
+MTAR Technologies,MTARTECH,Capital Goods and Industrials,Small Cap,865.4,150.65,126.15,94.03,1743.42,822.59
+Bajaj Finance,BAJFINANCE,NBFC,Large Cap,71267,45320,23672,17804,432203,103123
+Bajaj Finserv,BAJAJFINSV,NBFC,Large Cap,150504,57098,29040,9801,758498,118500
+Shriram Finance,SHRIRAMFIN,NBFC,Large Cap,48120,34877,13292,9998,321155,65705
+Jio Financial,JIOFIN,NBFC,Large Cap,3513.26,1912.44,1947,1613,163824,129897
+Tata Capital,TATACAP,NBFC,Large Cap,23076,15280,4257,3201,206892,39013
+Muthoot Finance,MUTHOOTFIN,NBFC,Large Cap,27558,23629,13645,10134,179945,37742
+Power Finance Corp,PFC,NBFC,Large Cap,58504,57951,24774,20051,618515,102532
+IRFC,IRFC,NBFC,Large Cap,27285,27014,7009,7009,516676,56749
+Cholamandalam,CHOLAFIN,NBFC,Large Cap,31025,21335,6961,5220,245070,30404
+Bajaj Holdings,BAJAJHLDNG,NBFC,Large Cap,3184.31,4977.71,4976.71,4707.8,28243,27307
+REC,RECLTD,NBFC,Mid Cap,59142,56954,20713,16282,639076,83732
+Aditya Birla Capital,ABCAPITAL,NBFC,Mid Cap,17473,13283,4168,3109,170586,28702
+Bajaj Housing Finance,BAJAJHFL,NBFC,Mid Cap,11150,10081,3320,2560,127147,22523
+L&T Finance,LTF,NBFC,Mid Cap,18050,10840,4106,3100,141943,27833
+SBI Cards,SBICARD,NBFC,Mid Cap,19901,5985,2913,2167,66328,15726
+HDB Financial,HDBFS,NBFC,Mid Cap,18431,10242,3386,2544,123651,20664
+Sundaram Finance,SUNDARMFIN,NBFC,Mid Cap,7722,6037,2369,1834,68225,12715
+M&M Financial Services,M&MFIN,NBFC,Mid Cap,18458,12065,3673,2782,147905,24759
+Piramal Finance,PIRAMALFIN,NBFC,Mid Cap,13207,7642,1347,1540,109542,28435
+Poonawalla Fincorp,POONAWALLA,NBFC,Mid Cap,6790,3491,724,542,60221,10298
+LIC Housing Finance,LICHSGFIN,NBFC,Small Cap,28321.95,26875.47,7103.47,5603.67,325212.95,41428.92
+Manappuram,MANAPPURAM,NBFC,Small Cap,9509.41,5265.81,1270.22,1003.32,74559.33,16050.74
+PNB Housing,PNBHOUSING,NBFC,Small Cap,8071.17,7970.85,2970.61,2291.24,93512.07,19219.13
+IIFL Finance,IIFL,NBFC,Small Cap,13350.8,8131.89,2408.58,1660.8,89059.04,13919.96
+Aadhar Housing,AADHARHFC,NBFC,Small Cap,3387.44,2751.22,1405.91,1095.88,27398.84,7540.89
+CreditAccess Grameen,CREDITACC,NBFC,Small Cap,5833.23,2875.2,1033.2,777.64,31930.23,7842.25
+Five Star Business Finance,FIVESTAR,NBFC,Small Cap,3046.25,2171.82,1462.82,1098.75,15789.74,7380.15
+Aptus,APTUS,NBFC,Small Cap,2192.24,1859.61,1211.16,942.94,13047.66,5060.04
+Can Fin Homes,CANFINHOME,NBFC,Small Cap,4216.27,3873.24,1303.57,1085.75,44381.06,5980.4
+Home First,HOMEFIRST,NBFC,Small Cap,1656.17,1507.75,707.75,540.38,15166.54,4356.54
+UltraTech Cement,ULTRACEMCO,"Metals, Mining & Cement",Large Cap,88512,12799,10927,8188,141315,80713
+JSW Steel,JSWSTEEL,"Metals, Mining & Cement",Large Cap,185470,38352,29250,25508,269658,105475
+Hindustan Zinc,HINDZINC,"Metals, Mining & Cement",Large Cap,40844,19389,18508,13832,42370,22629
+Tata Steel,TATASTEEL,"Metals, Mining & Cement",Large Cap,232140,23136,15969,10886,296515,103780
+Hindalco,HINDALCO,"Metals, Mining & Cement",Large Cap,274944,21976,18496,13391,344681,136595
+Grasim,GRASIM,"Metals, Mining & Cement",Large Cap,175431,29617,14473,10300,569134,169865
+Vedanta Aluminium,VAML,"Metals, Mining & Cement",Large Cap,66891,22966,19061,14153,58500,23040
+Vedanta,VEDL,"Metals, Mining & Cement",Large Cap,78437,32559,29742,25096,232311,68577
+Jindal Steel,JINDALSTEL,"Metals, Mining & Cement",Large Cap,53455,5930,4413,3361,97635,51841
+Ambuja Cements,AMBUJACEM,"Metals, Mining & Cement",Large Cap,40656,3523,3299,5637,89574,71846
+Shree Cement,SHREECEM,"Metals, Mining & Cement",Mid Cap,20943,2505,2293,1749,31448,23314
+Lloyds Metals,LLOYDSME,"Metals, Mining & Cement",Mid Cap,17113,5747,5237,3829,41650,14266
+NMDC,NMDC,"Metals, Mining & Cement",Mid Cap,32071,10270,10149,7450,48320,34076
+NALCO,NATIONALUM,"Metals, Mining & Cement",Mid Cap,17843,7849,7749,5797,26544,21603
+SAIL,SAIL,"Metals, Mining & Cement",Mid Cap,110811,6664,4506,3373,136224,60356
+Jindal Stainless,JSL,"Metals, Mining & Cement",Mid Cap,42955,4810,4242,3185,40441,19882
+APL Apollo Tubes,APLAPOLLO,"Metals, Mining & Cement",Mid Cap,23079,1682,1557,1203,8833,5297
+Hindustan Copper,HINDCOPPER,"Metals, Mining & Cement",Mid Cap,3078,1239,1233,919,4632,3343
+JK Cement,JKCEMENT,"Metals, Mining & Cement",Mid Cap,13722,1868,1444,988,18500,7090
+Dalmia Bharat,DALBHARAT,"Metals, Mining & Cement",Mid Cap,14467,1927,1450,1139,33312,17979
+Welspun Corp,WELCORP,"Metals, Mining & Cement",Small Cap,16770,2359,2147,1620,20400,9406
+Shyam Metalics,SHYAMMETL,"Metals, Mining & Cement",Small Cap,18487.46,1589.22,1462.37,1070.24,20060.84,11522.81
+Ramco Cements,RAMCOCEM,"Metals, Mining & Cement",Small Cap,8947.17,1171.49,871.1,698.65,16635.59,8093.51
+Gujarat Mineral Development,GMDCLTD,"Metals, Mining & Cement",Small Cap,2653.38,1274.88,1267.74,956.67,8982.98,7072.74
+Sarda Energy,SARDAEN,"Metals, Mining & Cement",Small Cap,5643.76,1672.16,1449.49,1105.86,11370.7,7370
+Godawari Power,GPIL,"Metals, Mining & Cement",Small Cap,5376.32,1128.99,1098.3,800.75,7296.15,5808.16
+Ratnamani Metals,RATNAMANI,"Metals, Mining & Cement",Small Cap,4417.08,724.52,706.34,482.55,5387.6,4110.63
+Usha Martin,USHAMART,"Metals, Mining & Cement",Small Cap,3595.63,657.55,639.57,465.99,4211.82,3301.93
+Jindal Saw,JINDALSAW,"Metals, Mining & Cement",Small Cap,17276.38,1500.05,1075.71,973.35,21686.19,12574.24
+India Cements,INDIACEM,"Metals, Mining & Cement",Small Cap,4454.42,34.32,-65.01,-67.25,13403.05,10124.27
+HUL,HINDUNILVR,"Consumer (FMCG, Retail & Durables)",Large Cap,64468,18629,18219,15059,79738,49008
+ITC,ITC,"Consumer (FMCG, Retail & Durables)",Large Cap,78868,28118,28033,21018,93637,72873
+Titan,TITAN,"Consumer (FMCG, Retail & Durables)",Large Cap,87584,7981,6801,5073,60561,15703
+Avenue Supermarts,DMART,"Consumer (FMCG, Retail & Durables)",Large Cap,68821,4224,4082,2970,29518,24462
+Nestle India,NESTLEIND,"Consumer (FMCG, Retail & Durables)",Large Cap,23155,4722,4564,3499,13182,5157
+Eternal,ETERNAL,"Consumer (FMCG, Retail & Durables)",Large Cap,54364,1007,615,366,40722,30973
+Asian Paints,ASIANPAINT,"Consumer (FMCG, Retail & Durables)",Large Cap,35584,6198,6003,4395,34519,22015
+Varun Beverages,VBL,"Consumer (FMCG, Retail & Durables)",Large Cap,21685,4206,4010,3062,25541,19740
+Trent,TRENT,"Consumer (FMCG, Retail & Durables)",Large Cap,20074,2469,2236,1721,11729,7108
+Britannia,BRITANNIA,"Consumer (FMCG, Retail & Durables)",Large Cap,19152,3402,3289,2537,9730,5135
+Marico,MARICO,"Consumer (FMCG, Retail & Durables)",Mid Cap,13611,2330,2277,1813,9950,4494
+United Spirits,UNITDSPR,"Consumer (FMCG, Retail & Durables)",Mid Cap,12467,2506,2348,1838,14451,8957
+Indian Hotels,INDHOTEL,"Consumer (FMCG, Retail & Durables)",Mid Cap,9689,3147,2926,2247,20221,14939
+Dabur,DABUR,"Consumer (FMCG, Retail & Durables)",Mid Cap,13193,2565,2420,1869,17480,11802
+FSN E-Commerce (Nykaa),NYKAA,"Consumer (FMCG, Retail & Durables)",Mid Cap,10022,448,330,204,4611,1502
+Colgate-Palmolive,COLPAL,"Consumer (FMCG, Retail & Durables)",Mid Cap,6035,1788,1784,1325,3408,1584
+Vishal Mega Mart,VMM,"Consumer (FMCG, Retail & Durables)",Mid Cap,12906,1329,1125,839,11449,7413
+Patanjali Foods,PATANJALI,"Consumer (FMCG, Retail & Durables)",Mid Cap,40170,1487,1354,1814,18802,13097
+Voltas,VOLTAS,"Consumer (FMCG, Retail & Durables)",Mid Cap,14244,644,557,370,14496,6399
+Radico Khaitan,RADICO,"Consumer (FMCG, Retail & Durables)",Mid Cap,6037,870,805,604,4995,3316
+Metro Brands,METROBRAND,"Consumer (FMCG, Retail & Durables)",Small Cap,2863.05,662.19,551.25,411.17,4015.3,1993.2
+Gillette India,GILLETTE,"Consumer (FMCG, Retail & Durables)",Small Cap,3094.03,892.4,880.34,654.31,1871.47,946.43
+Hatsun Agro,HATSUN,"Consumer (FMCG, Retail & Durables)",Small Cap,9945.65,616.07,470.46,356.2,4442.51,1944.52
+Emami,EMAMILTD,"Consumer (FMCG, Retail & Durables)",Small Cap,3745.29,857.19,846.06,775.26,3836.44,2923.98
+Chalet Hotels,CHALET,"Consumer (FMCG, Retail & Durables)",Small Cap,2769.75,998.99,818.65,645.11,7308.63,3697.79
+Bikaji Foods,BIKAJI,"Consumer (FMCG, Retail & Durables)",Small Cap,2934.74,355.16,344.76,258.26,2239.54,1606.99
+Zydus Wellness,ZYDUSWELL,"Consumer (FMCG, Retail & Durables)",Small Cap,3940,325.5,230.5,197.2,10307.8,5826
+Devyani International,DEVYANI,"Consumer (FMCG, Retail & Durables)",Small Cap,5571.36,218.86,-56.87,-38.63,6749.97,1541.82
+CCL Products,CCL,"Consumer (FMCG, Retail & Durables)",Small Cap,4457.37,582.66,460.7,388.11,4326.29,2344.55
+LT Foods,LTFOODS,"Consumer (FMCG, Retail & Durables)",Small Cap,10946,957,866,625,6850,3815

@@ -1,0 +1,12 @@
+html { color-scheme: light; }
+body { margin: 0; background: #f4f1e7; color: #17233a; }
+.web-app { max-width: 1320px; margin: auto; padding: 22px clamp(12px, 3vw, 34px) 42px; }
+.web-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.guide-link {
+  display: inline-block; padding: 8px 13px; border: 2px outset #bec6d2;
+  background: linear-gradient(#fff, #d8dce2); color: #003399;
+  font: 700 calc(.84rem + 2pt) Verdana, Arial, sans-serif;
+}
+.guide-link:focus-visible { outline: 2px solid #003399; outline-offset: 2px; }
+.data-note { margin: 12px 0 16px; color: #45516a; font: calc(.75rem + 2pt)/1.5 Verdana, Arial, sans-serif; }
+.hero { box-sizing: border-box; }

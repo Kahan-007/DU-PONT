@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore five-factor DuPont analysis across 150 companies.">
+  <title>DuPont Screener</title>
+  <style>
+$styles
+  </style>
+</head>
+<body>
+  <main class="web-app">
+    <header class="web-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Equity Research</span>
+      </div>
+      <a class="guide-link" href="DuPont_Methodology_Guide.pdf" download>Methodology PDF</a>
+    </header>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <h1 id="page-title">DuPont Screener</h1>
+        <p>See what drives return on equity and how each company compares with its sector peers.</p>
+      </div>
+      <div class="hero-formula">
+        <span class="hero-formula-label">RETURN ON EQUITY</span>
+        <div class="factor-line"><span>Tax</span><b>×</b><span>Interest</span><b>×</b><span>Margin</span><b>×</b><span>Turnover</span><b>×</b><span>Leverage</span></div>
+      </div>
+    </section>
+    <p class="data-note">Period-end assets and equity are used where average balances are unavailable. See company details for row notes.</p>
+    <noscript><p>Enable JavaScript to search and compare companies.</p></noscript>
+$screen
+  </main>
+  <script id="stock-data" type="application/json">$data</script>
+  <script>
+$script
+    mountScreen({ parentElement: document, data: JSON.parse(document.getElementById("stock-data").textContent) });
+  </script>
+</body>
+</html>

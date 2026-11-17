@@ -6,6 +6,18 @@ const DECIMAL = new Intl.NumberFormat("en", { minimumFractionDigits: 4, maximumF
 const INTEGER = new Intl.NumberFormat("en");
 const COLLATOR = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
+const VERDICT_COLORS = { Good: "#16a07a", Decent: "#d4940c", Bad: "#d4495a", Unrated: "#94a3b8" };
+const VERDICT_ORDER = ["Good", "Decent", "Bad", "Unrated"];
+const METRIC_LABELS = {
+  tax: "Tax burden", interest: "Interest burden", margin: "Operating margin",
+  turnover: "Asset turnover", leverage: "Equity multiplier", roe: "Return on equity",
+};
+const SCATTER_MODES = {
+  operations: { x: "turnover", y: "margin", detail: "Compare how efficiently companies turn assets into sales and sales into operating profit. Operating margin × asset turnover gives operating return on assets." },
+  leverage: { x: "leverage", y: "roe", detail: "See how ROE varies with assets per rupee of equity. Look at companies with similar ROE and open their factor breakdowns to see whether they use different levels of leverage." },
+  retention: { x: "interest", y: "roe", detail: "Compare ROE with the share of operating profit that remains before tax. Open a company to see how interest burden combines with its other four factors." },
+};
+
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -38,7 +50,477 @@ function badge(label) {
 }
 
 function countText(count, noun) {
-  return `${INTEGER.format(count)} ${noun}${count === 1 ? "" : "s"}`;
+  const label = count === 1 ? noun : noun === "company" ? "companies" : noun + "s";
+  return `${INTEGER.format(count)} ${label}`;
+}
+
+/* ── Scatter Plot (pure Canvas, no dependencies) ── */
+function createScatter(canvas, tooltipEl, legendEl, openCompany) {
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const PAD = { top: 18, right: 22, bottom: 48, left: 74 };
+  let mode = SCATTER_MODES.operations;
+  let points = [];
+  let hovered = -1;
+  let focusedIdx = -1;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + "px";
+    canvas.style.height = rect.height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function setPoints(filteredRows, chartMode) {
+    mode = chartMode;
+    points = filteredRows
+      .filter(r => Number.isFinite(r.ratios[mode.x]) && Number.isFinite(r.ratios[mode.y]))
+      .map(r => ({
+        row: r,
+        x: r.ratios[mode.x],
+        y: r.ratios[mode.y],
+        color: VERDICT_COLORS[r.verdict] || VERDICT_COLORS.Unrated,
+      }));
+    hovered = -1;
+    focusedIdx = -1;
+    tooltipEl.hidden = true;
+    canvas.setAttribute("aria-label", `${METRIC_LABELS[mode.y]} vs. ${METRIC_LABELS[mode.x]}, ${countText(points.length, "company")}`);
+    draw();
+  }
+
+  function draw() {
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    if (w <= PAD.left + PAD.right || h <= PAD.top + PAD.bottom) return;
+    const colors = getComputedStyle(canvas);
+    ctx.clearRect(0, 0, w, h);
+    if (!points.length) {
+      canvas._plotLayout = null;
+      ctx.fillStyle = colors.getPropertyValue("--muted");
+      ctx.font = "13px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("No data points match these filters", w / 2, h / 2);
+      return;
+    }
+    const xs = points.map(p => p.x);
+    const ys = points.map(p => p.y);
+    const [xMin, xMax] = plotRange(xs, mode.x);
+    const [yMin, yMax] = plotRange(ys, mode.y);
+    const xRange = xMax - xMin;
+    const yRange = yMax - yMin;
+    const plotW = w - PAD.left - PAD.right;
+    const plotH = h - PAD.top - PAD.bottom;
+    const toX = v => PAD.left + ((v - xMin) / xRange) * plotW;
+    const toY = v => PAD.top + plotH - ((v - yMin) / yRange) * plotH;
+
+    // Grid lines
+    ctx.strokeStyle = colors.getPropertyValue("--line");
+    ctx.lineWidth = 0.6;
+    const xTicks = niceRange(xMin, xMax, w < 500 ? 3 : 6);
+    const yTicks = niceRange(yMin, yMax, 6);
+    for (const t of xTicks) {
+      const px = toX(t);
+      ctx.beginPath(); ctx.moveTo(px, PAD.top); ctx.lineTo(px, PAD.top + plotH); ctx.stroke();
+    }
+    for (const t of yTicks) {
+      const py = toY(t);
+      ctx.beginPath(); ctx.moveTo(PAD.left, py); ctx.lineTo(PAD.left + plotW, py); ctx.stroke();
+    }
+
+    // Axis labels
+    ctx.fillStyle = colors.getPropertyValue("--muted");
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    for (const t of xTicks) {
+      ctx.fillText(format(t, mode.x), toX(t), h - 27);
+    }
+    ctx.textAlign = "right";
+    for (const t of yTicks) {
+      ctx.fillText(format(t, mode.y), PAD.left - 6, toY(t) + 4);
+    }
+    // Axis titles
+    ctx.fillStyle = colors.getPropertyValue("--ink");
+    ctx.font = "bold 11px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(METRIC_LABELS[mode.x], PAD.left + plotW / 2, h - 7);
+    ctx.save();
+    ctx.translate(12, PAD.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(METRIC_LABELS[mode.y], 0, 0);
+    ctx.restore();
+
+    // Plot points
+    const radius = Math.max(4, Math.min(7, 220 / Math.sqrt(points.length)));
+    for (let i = 0; i < points.length; i++) {
+      if (i === hovered || i === focusedIdx) continue;
+      const p = points[i];
+      ctx.beginPath();
+      ctx.arc(toX(p.x), toY(p.y), radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + "cc";
+      ctx.fill();
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // Draw hovered / focused on top
+    const activeIdx = hovered >= 0 ? hovered : focusedIdx;
+    if (activeIdx >= 0 && activeIdx < points.length) {
+      const p = points[activeIdx];
+      const px = toX(p.x); const py = toY(p.y);
+      ctx.beginPath(); ctx.arc(px, py, radius + 3, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.strokeStyle = colors.getPropertyValue("--ink");
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    // Store layout for hit testing
+    canvas._plotLayout = { toX, toY, radius, points };
+  }
+
+  function plotRange(values, metric) {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = (max - min) * 0.06 || Math.max(Math.abs(min) * 0.06, metric === "turnover" || metric === "leverage" ? 0.05 : 0.005);
+    return [min - padding, max + padding];
+  }
+
+  function niceRange(lo, hi, count) {
+    const range = hi - lo || 0.1;
+    const rough = range / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    const nice = rough / mag >= 5 ? 5 * mag : rough / mag >= 2 ? 2 * mag : mag;
+    const start = Math.ceil(lo / nice) * nice;
+    const ticks = [];
+    for (let v = start; v <= hi + nice * 0.01; v += nice) ticks.push(Number(v.toPrecision(8)));
+    return ticks;
+  }
+
+  function hitTest(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const layout = canvas._plotLayout;
+    if (!layout) return -1;
+    const { toX, toY, radius, points } = layout;
+    let closest = -1, closestDist = (radius + 6) * (radius + 6);
+    for (let i = 0; i < points.length; i++) {
+      const px = toX(points[i].x), py = toY(points[i].y);
+      const dist = (mx - px) ** 2 + (my - py) ** 2;
+      if (dist < closestDist) { closest = i; closestDist = dist; }
+    }
+    return closest;
+  }
+
+  function showTooltip(idx, e) {
+    if (idx < 0) { tooltipEl.hidden = true; return; }
+    const p = points[idx];
+    const r = p.row;
+    const roe = r.ratios.roe !== null ? format(r.ratios.roe, "roe") : "—";
+    const period = r.filing ? [r.filing.period, r.filing.end].filter(Boolean).join(" · ") : "";
+    tooltipEl.innerHTML = `<span class="tt-ticker">${esc(r.ticker || r.company)}</span>`
+      + `<span class="tt-line">${METRIC_LABELS[mode.x]}: ${format(p.x, mode.x)}</span>`
+      + `<span class="tt-line">${METRIC_LABELS[mode.y]}: ${format(p.y, mode.y)}</span>`
+      + (mode.y === "roe" ? "" : `<span class="tt-line">ROE: ${roe}</span>`)
+      + `<span class="tt-line">${esc(r.verdict)}</span>`
+      + (period ? `<span class="tt-line" style="opacity:.7">${esc(period)}</span>` : "");
+    tooltipEl.hidden = false;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const tx = (e ? e.clientX - canvasRect.left : 0) + 14;
+    const ty = (e ? e.clientY - canvasRect.top : 0) - 10;
+    tooltipEl.style.left = Math.max(0, Math.min(tx, rect.width - tooltipEl.offsetWidth)) + "px";
+    tooltipEl.style.top = Math.max(0, Math.min(ty, rect.height - tooltipEl.offsetHeight)) + "px";
+  }
+
+  function esc(str) {
+    const d = document.createElement("span");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  canvas.addEventListener("mousemove", e => {
+    const idx = hitTest(e);
+    if (idx !== hovered) { hovered = idx; draw(); showTooltip(idx, e); }
+    canvas.style.cursor = idx >= 0 ? "pointer" : "default";
+  });
+  canvas.addEventListener("mouseleave", () => { hovered = -1; draw(); tooltipEl.hidden = true; canvas.style.cursor = "default"; });
+  canvas.addEventListener("click", e => {
+    const idx = hitTest(e);
+    if (idx >= 0) openCompany(points[idx].row, canvas);
+  });
+
+  // Keyboard accessibility
+  canvas.tabIndex = 0;
+  canvas.setAttribute("role", "img");
+  canvas.addEventListener("keydown", e => {
+    if (!points.length) return;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      focusedIdx = (focusedIdx + 1) % points.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      focusedIdx = focusedIdx <= 0 ? points.length - 1 : focusedIdx - 1;
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (focusedIdx >= 0) openCompany(points[focusedIdx].row, canvas);
+      return;
+    } else if (e.key === "Escape") {
+      focusedIdx = -1;
+    } else return;
+    draw();
+    if (focusedIdx >= 0) {
+      showTooltip(focusedIdx, null);
+      const p = points[focusedIdx];
+      canvas.setAttribute("aria-label", `${p.row.ticker || p.row.company}, ${METRIC_LABELS[mode.x]} ${format(p.x, mode.x)}, ${METRIC_LABELS[mode.y]} ${format(p.y, mode.y)}, ${p.row.verdict}`);
+    } else {
+      tooltipEl.hidden = true;
+    }
+  });
+
+  // Legend
+  legendEl.replaceChildren(...VERDICT_ORDER.map(v => {
+    const item = element("span", "scatter-legend-item");
+    const sw = element("span", "scatter-legend-swatch");
+    sw.style.background = VERDICT_COLORS[v];
+    item.append(sw, element("span", "", v));
+    return item;
+  }));
+
+  let resizeTimer;
+  const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { resize(); draw(); }, 80); };
+  window.addEventListener("resize", onResize);
+  resize();
+  document.addEventListener("dupont-theme-change", draw);
+  return { setPoints, resize: () => { resize(); draw(); } };
+}
+
+/* ── Verdict Breakdown ── */
+function createVerdictBreakdown(container, clearBtn, rows, setVerdictFilter) {
+  const total = rows.length;
+  const counts = {};
+  for (const v of VERDICT_ORDER) counts[v] = 0;
+  for (const r of rows) counts[r.verdict] = (counts[r.verdict] || 0) + 1;
+
+  const barRows = [];
+  container.replaceChildren();
+  for (const v of VERDICT_ORDER) {
+    if (counts[v] === 0 && v === "Unrated") continue;
+    const row = element("div", "verdict-bar-row");
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-pressed", "false");
+    row.dataset.verdict = v;
+
+    const label = element("span", "verdict-bar-label", v);
+    label.style.color = VERDICT_COLORS[v];
+    const track = element("div", "verdict-bar-track");
+    const fill = element("div", `verdict-bar-fill ${v.toLowerCase()}`);
+    track.append(fill);
+    const count = element("span", "verdict-bar-count", String(counts[v]));
+
+    row.append(label, track, count);
+    container.append(row);
+    barRows.push({ el: row, verdict: v, fill, countEl: count, baseCount: counts[v] });
+  }
+
+  function updateCounts(filteredRows) {
+    const fc = {};
+    for (const v of VERDICT_ORDER) fc[v] = 0;
+    for (const r of filteredRows) fc[r.verdict] = (fc[r.verdict] || 0) + 1;
+    const maxCount = Math.max(1, ...Object.values(fc));
+    for (const br of barRows) {
+      br.countEl.textContent = String(fc[br.verdict] || 0);
+      br.fill.style.width = ((fc[br.verdict] || 0) / maxCount * 100) + "%";
+    }
+  }
+
+  for (const br of barRows) {
+    const handler = () => setVerdictFilter(br.verdict);
+    br.el.addEventListener("click", handler);
+    br.el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler(); } });
+  }
+
+  function setActive(verdict) {
+    for (const br of barRows) {
+      br.el.setAttribute("aria-pressed", String(br.verdict === verdict));
+    }
+    clearBtn.hidden = !verdict;
+  }
+
+  // Animate initial fill
+  requestAnimationFrame(() => {
+    const maxCount = Math.max(1, ...VERDICT_ORDER.map(v => counts[v]));
+    for (const br of barRows) {
+      br.fill.style.width = (br.baseCount / maxCount * 100) + "%";
+    }
+  });
+
+  return { updateCounts, setActive };
+}
+
+/* ── Peer Comparison Table ── */
+function buildPeerComparison(row) {
+  const section = element("div", "peer-comparison");
+  const heading = element("h3", "", "Peer Comparison — Sector Median");
+  section.append(heading);
+
+  const peerCount = row.peer_count;
+  const period = row.filing ? [row.filing.period, row.filing.end].filter(Boolean).join(" · ") : "";
+  if (period) {
+    section.append(element("p", "", `${period} · ${countText(peerCount, "peer")}`));
+  } else {
+    section.append(element("p", "", countText(peerCount, "peer")));
+  }
+
+  if (peerCount === 0) {
+    section.append(element("p", "no-benchmark", "No same-period sector peers available for comparison."));
+    return section;
+  }
+
+  const table = element("table", "peer-table");
+  const thead = element("thead");
+  const hrow = element("tr");
+  for (const h of ["Factor", "Company", "Sector Median", "vs Median"]) {
+    const th = element("th", h === "Factor" ? "" : "numeric", h);
+    hrow.append(th);
+  }
+  thead.append(hrow);
+  table.append(thead);
+
+  const tbody = element("tbody");
+  const factorLabels = {
+    tax: "Tax Burden", interest: "Interest Burden",
+    margin: "Operating Margin", turnover: "Asset Turnover", leverage: "Equity Multiplier"
+  };
+
+  for (const key of RATIOS) {
+    const tr = element("tr");
+    const companyVal = row.ratios[key];
+    const card = row.cards[key];
+    const medianVal = card.quartiles[1] ?? null;
+
+    tr.append(element("td", "factor-label", factorLabels[key]));
+
+    const compTd = element("td", "numeric company-val");
+    compTd.textContent = format(companyVal, key);
+    tr.append(compTd);
+
+    const medTd = element("td", "numeric");
+    if (medianVal === null) {
+      medTd.className = "numeric no-benchmark";
+      medTd.textContent = "—";
+    } else {
+      medTd.textContent = format(medianVal, key);
+    }
+    tr.append(medTd);
+
+    const diffTd = element("td", "numeric");
+    if (companyVal !== null && medianVal !== null) {
+      let diff;
+      if (key === "turnover" || key === "leverage") {
+        diff = companyVal - medianVal;
+        diffTd.textContent = (diff >= 0 ? "+" : "") + MULTIPLE.format(diff) + "×";
+      } else {
+        diff = companyVal - medianVal;
+        const diffPct = diff * 100;
+        diffTd.textContent = (diffPct >= 0 ? "+" : "") + diffPct.toFixed(2) + " pp";
+      }
+      // For leverage, lower can be better (less risk), so we don't color it
+      if (key !== "leverage") {
+        diffTd.classList.add(diff >= 0 ? "above-median" : "below-median");
+      }
+    } else {
+      diffTd.className = "numeric no-benchmark";
+      diffTd.textContent = "—";
+    }
+    tr.append(diffTd);
+    tbody.append(tr);
+  }
+  table.append(tbody);
+  section.append(table);
+  return section;
+}
+
+function drawSectorChart(container, rows, sectors, selected, toggleSector) {
+  const totalBySector = new Map();
+  for (const row of rows) {
+    if (!totalBySector.has(row.sector_key)) totalBySector.set(row.sector_key, new Map());
+    const counts = totalBySector.get(row.sector_key);
+    counts.set(row.verdict, (counts.get(row.verdict) || 0) + 1);
+  }
+  container.replaceChildren(...sectors.map(([key, label]) => {
+    const counts = totalBySector.get(key) || new Map();
+    const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
+    const button = element("button", "sector-bar");
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(selected.has(key)));
+    button.onclick = () => toggleSector(key, button);
+    const heading = element("span", "sector-bar-heading");
+    heading.append(element("strong", "", label), element("span", "", countText(total, "stock")));
+    const track = element("span", "sector-track");
+    track.setAttribute("aria-hidden", "true");
+    const detail = VERDICT_ORDER.filter(verdict => counts.has(verdict)).map(verdict => {
+      const count = counts.get(verdict);
+      const segment = element("span");
+      segment.style.width = (count / total * 100) + "%";
+      segment.style.backgroundColor = VERDICT_COLORS[verdict];
+      track.append(segment);
+      return `${count} ${verdict}`;
+    }).join(" · ");
+    button.append(heading, track, element("span", "sector-detail", detail || "No matches"));
+    return button;
+  }));
+}
+
+function compareCompanies(container, left, right) {
+  if (!left || !right) {
+    container.replaceChildren(element("p", "comparison-empty", "Select both companies to see the comparison."));
+    return;
+  }
+  if (left === right) {
+    container.replaceChildren(element("p", "comparison-empty", "Select a different company to compare."));
+    return;
+  }
+  const period = row => row.filing ? [row.filing.period, row.filing.end].filter(Boolean).join(" · ") : "Period unavailable";
+  const headings = element("div", "comparison-headings");
+  for (const row of [left, right]) {
+    const card = element("div", "comparison-company");
+    card.append(element("strong", "", row.company), badge(row.verdict),
+      element("span", "", `${row.ticker || row.company} · ${period(row)}`));
+    headings.append(card);
+  }
+  container.replaceChildren(headings);
+  if (!left.filing || !right.filing || period(left) !== period(right)) {
+    container.append(element("p", "comparison-period", "Check the time spans above. ROE and asset turnover can differ simply because the reporting periods differ."));
+  }
+  for (const metric of [...RATIOS, "roe"]) {
+    const values = [left.ratios[metric], right.ratios[metric]];
+    const min = Math.min(0, ...values.filter(Number.isFinite));
+    const max = Math.max(0, ...values.filter(Number.isFinite));
+    const range = max - min || 1;
+    const zero = (0 - min) / range * 100;
+    const group = element("section", "comparison-factor");
+    group.append(element("h4", "", METRIC_LABELS[metric]));
+    values.forEach((value, index) => {
+      const row = element("div", "comparison-bar-row");
+      const ticker = [left, right][index];
+      const track = element("span", "comparison-track");
+      track.setAttribute("aria-hidden", "true");
+      if (Number.isFinite(value)) {
+        const fill = element("span", index === 0 ? "comparison-a" : "comparison-b");
+        fill.style.left = Math.min(zero, (value - min) / range * 100) + "%";
+        fill.style.width = Math.abs(value) / range * 100 + "%";
+        track.append(fill);
+      }
+      row.append(element("span", "comparison-ticker", ticker.ticker || ticker.company), track,
+        withDecimal(valueNode("span", "comparison-value", value, metric), value, metric));
+      group.append(row);
+    });
+    container.append(group);
+  }
 }
 
 export default function ({ parentElement, data }) {
@@ -53,20 +535,10 @@ export default function ({ parentElement, data }) {
   const dialog = find(".drawer");
   const search = find("#company-search");
   const sectorPicker = find(".sector-picker");
+  const chartControl = find(".chart-mode");
+  const comparisonSelects = [...root.querySelectorAll(".comparison-select")];
   let selectedCompany = null;
 
-  const stats = [
-    ["Companies", rows.length, "all"],
-    ...["Good", "Decent", "Bad"].map((label) =>
-      [label, rows.filter((row) => row.verdict === label).length, label.toLowerCase()]),
-  ];
-  find(".stat-grid").replaceChildren(...stats.map(([label, count, color]) => {
-    const card = element("div", "stat");
-    const heading = element("div", "stat-label");
-    heading.append(element("i", `dot ${color}`), element("span", "", label));
-    card.append(heading, element("strong", "stat-number", INTEGER.format(count)));
-    return card;
-  }));
   find(".dataset").replaceChildren(
     element("span", "source-tag", data.source),
     element("span", "", countText(new Set(rows.map((row) => row.sector_key).filter(Boolean)).size, "sector")),
@@ -74,6 +546,70 @@ export default function ({ parentElement, data }) {
   const unrated = rows.filter((row) => row.verdict === "Unrated").length;
   if (unrated) find(".dataset").append(element("span", "", `${INTEGER.format(unrated)} unrated`));
 
+  // ── Scatter plot ──
+  const scatter = createScatter(
+    find(".scatter-canvas"),
+    find(".scatter-tooltip"),
+    find(".scatter-legend"),
+    openCompany
+  );
+  chartControl.onchange = render;
+  for (const tab of root.querySelectorAll("[data-view]")) {
+    tab.onclick = () => {
+      const view = tab.dataset.view;
+      for (const item of root.querySelectorAll("[data-view]")) {
+        item.setAttribute("aria-pressed", String(item === tab));
+      }
+      for (const panel of root.querySelectorAll("[data-panel]")) panel.hidden = panel.dataset.panel !== view;
+      if (view === "overview") scatter.resize();
+    };
+  }
+  const sortedCompanies = rows.slice().sort((a, b) => COLLATOR.compare(a.company, b.company));
+  for (const select of comparisonSelects) {
+    for (const row of sortedCompanies) {
+      const option = element("option", "", row.ticker ? `${row.company} · ${row.ticker}` : row.company);
+      option.value = String(row.index);
+      select.append(option);
+    }
+    select.onchange = () => {
+      compareCompanies(find(".comparison-results"),
+        ...comparisonSelects.map(input => input.value === "" ? null : rows[Number(input.value)]));
+    };
+  }
+  compareCompanies(find(".comparison-results"), null, null);
+
+  // ── Verdict breakdown ──
+  function setVerdictFilterFromBreakdown(verdict) {
+    if (filters.verdict === verdict) {
+      filters.verdict = "All";
+    } else {
+      filters.verdict = verdict;
+    }
+    syncVerdictButtons();
+    verdictBreakdown.setActive(filters.verdict === "All" ? null : filters.verdict);
+    resetPage();
+  }
+  const verdictBreakdown = createVerdictBreakdown(
+    find(".verdict-bars"),
+    find(".clear-verdict-filter"),
+    rows,
+    setVerdictFilterFromBreakdown
+  );
+  find(".clear-verdict-filter").onclick = () => {
+    filters.verdict = "All";
+    syncVerdictButtons();
+    verdictBreakdown.setActive(null);
+    resetPage();
+  };
+
+  function syncVerdictButtons() {
+    const target = find('[data-filter="verdict"]');
+    for (const btn of target.children) {
+      btn.setAttribute("aria-pressed", String(btn.textContent === filters.verdict || (filters.verdict === "All" && btn.textContent === "All")));
+    }
+  }
+
+  // ── Sort / compare ──
   function compareRows(a, b) {
     const { key, descending } = sort;
     const direction = descending ? -1 : 1;
@@ -85,6 +621,7 @@ export default function ({ parentElement, data }) {
     return direction * (left - right) || COLLATOR.compare(a.company, b.company);
   }
 
+  // ── Table row ──
   function renderRow(row) {
     const tr = element("tr");
     tr.dataset.index = row.index;
@@ -112,14 +649,19 @@ export default function ({ parentElement, data }) {
     return tr;
   }
 
-  function render() {
+  function getFiltered(includeVerdict = true) {
     const query = search.value.trim().toLowerCase();
-    const filtered = rows.filter((row) =>
+    return rows.filter((row) =>
       (!activeSectors.size || activeSectors.has(row.sector_key))
       && (filters.cap === "All" || row.cap === filters.cap)
-      && (filters.verdict === "All" || row.verdict === filters.verdict)
+      && (!includeVerdict || filters.verdict === "All" || row.verdict === filters.verdict)
       && (!query || `${row.company} ${row.ticker}`.toLowerCase().includes(query))
-    ).sort(compareRows);
+    );
+  }
+
+  // ── Main render ──
+  function render() {
+    const filtered = getFiltered().sort(compareRows);
     const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     page = Math.min(page, pages - 1);
     const start = page * PAGE_SIZE;
@@ -139,10 +681,17 @@ export default function ({ parentElement, data }) {
     find(".page-index").textContent = `${page + 1} / ${pages}`;
     find(".prev").disabled = page === 0;
     find(".next").disabled = page + 1 >= pages;
+    find(".reset-filters").hidden = !(activeSectors.size || search.value || filters.cap !== "All" || filters.verdict !== "All");
     for (const button of root.querySelectorAll("[data-sort]")) {
       const current = button.dataset.sort === sort.key;
       button.parentElement.setAttribute("aria-sort", current ? (sort.descending ? "descending" : "ascending") : "none");
     }
+
+    const mode = SCATTER_MODES[chartControl.value];
+    find(".scatter-description").textContent = mode.detail;
+    scatter.setPoints(filtered, mode);
+    verdictBreakdown.updateCounts(getFiltered(false));
+    drawSectorChart(find(".sector-chart"), filtered, sectorLabels, activeSectors, toggleSector);
   }
 
   function resetPage() {
@@ -150,6 +699,7 @@ export default function ({ parentElement, data }) {
     render();
   }
 
+  // ── Sector picker ──
   const sectorMenu = find(".sector-menu");
   const clearSectors = element("button", "clear-sectors", "Clear selection");
   clearSectors.type = "button";
@@ -169,6 +719,20 @@ export default function ({ parentElement, data }) {
     return input;
   });
   sectorMenu.prepend(clearSectors);
+
+  function toggleSector(key, opener) {
+    if (activeSectors.size === 1 && activeSectors.has(key)) activeSectors.clear();
+    else {
+      activeSectors.clear();
+      activeSectors.add(key);
+    }
+    for (const [index, [sector]] of sectorLabels.entries()) {
+      sectorInputs[index].checked = activeSectors.has(sector);
+    }
+    const index = [...opener.parentElement.children].indexOf(opener);
+    updateSectors();
+    find(".sector-chart").children[index]?.focus({ preventScroll: true });
+  }
 
   function updateSectors() {
     const active = activeSectors.size;
@@ -192,6 +756,7 @@ export default function ({ parentElement, data }) {
     }
   };
 
+  // ── Filter buttons ──
   const choices = {
     cap: ["All", "Large Cap", "Mid Cap", "Small Cap"],
     verdict: ["All", "Good", "Decent", "Bad", ...(unrated ? ["Unrated"] : [])],
@@ -205,12 +770,28 @@ export default function ({ parentElement, data }) {
       button.onclick = () => {
         filters[filter] = value;
         for (const item of target.children) item.setAttribute("aria-pressed", String(item === button));
+        if (filter === "verdict") {
+          verdictBreakdown.setActive(value === "All" ? null : value);
+          find(".clear-verdict-filter").hidden = value === "All";
+        }
         resetPage();
       };
       return button;
     }));
   }
+  find(".reset-filters").onclick = () => {
+    search.value = "";
+    filters.cap = "All";
+    filters.verdict = "All";
+    for (const button of root.querySelectorAll("[data-filter] button")) {
+      button.setAttribute("aria-pressed", String(button.textContent === "All"));
+    }
+    verdictBreakdown.setActive(null);
+    clearSectors.click();
+    search.focus();
+  };
 
+  // ── Ratio card (existing logic preserved) ──
   function ratioCard(row, key) {
     const card = row.cards[key];
     const section = element("section", "ratio-card");
@@ -236,6 +817,7 @@ export default function ({ parentElement, data }) {
     return section;
   }
 
+  // ── Company details drawer ──
   function openCompany(row, opener) {
     selectedCompany = opener;
     find(".company-meta").textContent = [row.ticker === row.company ? "" : row.ticker, row.sector, row.cap].filter(Boolean).join("  /  ");
@@ -260,6 +842,10 @@ export default function ({ parentElement, data }) {
       element("b", "", countText(row.peer_count, "row")));
     headline.append(peerCount);
     find(".ratio-grid").replaceChildren(...RATIOS.map((key) => ratioCard(row, key)));
+
+    find(".peer-slot").replaceChildren(buildPeerComparison(row));
+    for (const section of dialog.querySelectorAll(".drawer-section")) section.open = false;
+
     const notes = find(".row-notes");
     notes.replaceChildren();
     if (row.filing) {
@@ -268,16 +854,25 @@ export default function ({ parentElement, data }) {
       notes.append(element("p", "source-row", period));
       if (filing.note) notes.append(element("p", "", filing.note));
       const sources = element("div", "filing-sources");
-      const labels = ["Current filing", "Annual filing", "Prior filing"];
       filing.sources.forEach((url, index) => {
-        if (!url.startsWith("https://nsearchives.nseindia.com/")) return;
-        const link = element("a", "", labels[index]);
+        if (!url || (!url.startsWith("http://") && !url.startsWith("https://"))) return;
+        let label = "Filing Link";
+        if (url.includes("nsearchives.nseindia.com")) {
+          label = "NSE Integrated Filing";
+        } else if (url.includes("bseindia.com")) {
+          label = "BSE Statutory Filing";
+        } else if (index === 0) {
+          label = "Official IR Portal";
+        } else {
+          label = `Source #${index + 1}`;
+        }
+        const link = element("a", "", label);
         link.href = url;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         sources.append(link);
       });
-      notes.append(sources);
+      if (sources.children.length) notes.append(sources);
       const inputs = element("dl", "filing-inputs");
       for (const [label, amount] of Object.entries(row.inputs)) {
         const group = element("div");
@@ -297,6 +892,7 @@ export default function ({ parentElement, data }) {
     dialog.scrollTop = 0;
   }
 
+  // ── Event handlers ──
   body.onclick = (event) => {
     const row = event.target.closest("tr[data-index]");
     if (row) openCompany(rows[Number(row.dataset.index)], row.querySelector("button"));

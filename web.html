@@ -6,6 +6,14 @@
   <meta name="description" content="Explore five-factor DuPont analysis across 150 companies.">
   <link rel="icon" href="data:,">
   <title>DuPont Screener</title>
+  <script>
+    const themePreference = matchMedia("(prefers-color-scheme: dark)");
+    const themeKey = "dupont-theme";
+    let savedTheme;
+    try { savedTheme = localStorage.getItem(themeKey); } catch {}
+    document.documentElement.dataset.theme = savedTheme === "light" || savedTheme === "dark"
+      ? savedTheme : themePreference.matches ? "dark" : "light";
+  </script>
   <style>
 $styles
   </style>
@@ -20,6 +28,8 @@ $styles
       <div class="web-actions">
         <a class="guide-link" href="data:application/pdf;base64,$guide" download="DuPont_Methodology_Guide.pdf">Methodology PDF</a>
         <a class="guide-link" id="download-app" href="./DuPont-Screener.html" download hidden>Download offline app</a>
+        <button class="guide-link info-button" id="open-help" type="button" aria-label="How to use the screener" aria-haspopup="dialog" aria-controls="site-help" title="How to use the screener"><span aria-hidden="true">i</span></button>
+        <button class="guide-link theme-button" id="toggle-theme" type="button" aria-pressed="false">Dark mode</button>
       </div>
     </header>
     <section class="hero" aria-labelledby="page-title">
@@ -35,6 +45,20 @@ $styles
     <p class="data-note">$disclosure</p>
     <noscript><p>Enable JavaScript to search and compare companies.</p></noscript>
 $screen
+    <dialog class="site-help" id="site-help" aria-labelledby="site-help-title">
+      <header>
+        <h2 id="site-help-title">How to use the screener</h2>
+        <form method="dialog"><button class="guide-link" aria-label="Close website help" autofocus>Close</button></form>
+      </header>
+      <p>Explore how operating performance, financing, and tax combine to produce return on equity.</p>
+      <dl>
+        <div><dt>Overview</dt><dd>Switch chart views to explore margin, turnover, leverage, and interest burden. Select a dot to open a company or select a sector or verdict bar to filter the dashboard.</dd></div>
+        <div><dt>Companies</dt><dd>Search by name or ticker, sort ratio columns, and open a company for benchmarks, financial inputs, and source links.</dd></div>
+        <div><dt>Compare</dt><dd>Choose two companies to compare the five DuPont factors and ROE. Check the reporting periods before interpreting differences.</dd></div>
+        <div><dt>Data and offline access</dt><dd>Sector benchmarks use comparable reporting periods when available. The offline download includes the data from the version you save.</dd></div>
+      </dl>
+      <a class="guide-link" href="data:application/pdf;base64,$user_guide" download="DuPont_Website_User_Guide.pdf">Download the full user guide (PDF)</a>
+    </dialog>
   </main>
   <script id="stock-data" type="application/json">$data</script>
   <script>
@@ -43,6 +67,19 @@ $script
     if (location.protocol === "https:" || location.protocol === "http:") {
       document.getElementById("download-app").hidden = false;
     }
+    const helpDialog = document.getElementById("site-help");
+    const helpButton = document.getElementById("open-help");
+    helpButton.addEventListener("click", () => helpDialog.showModal());
+    helpDialog.addEventListener("close", () => helpButton.focus({ preventScroll: true }));
+    const themeButton = document.getElementById("toggle-theme");
+    themeButton.setAttribute("aria-pressed", document.documentElement.dataset.theme === "dark");
+    themeButton.addEventListener("click", () => {
+      const theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = theme;
+      themeButton.setAttribute("aria-pressed", theme === "dark");
+      try { localStorage.setItem(themeKey, theme); } catch {}
+      document.dispatchEvent(new Event("dupont-theme-change"));
+    });
   </script>
 </body>
 </html>

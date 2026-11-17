@@ -1,5 +1,4 @@
 <section class="screen" aria-labelledby="universe-title">
-  <div class="stat-grid" aria-label="Dataset summary"></div>
   <div class="universe">
     <div class="universe-heading">
       <div>
@@ -28,7 +27,61 @@
         <label class="filter-label" for="company-search">Company search</label>
         <div class="search-field"><span class="magnifier" aria-hidden="true"></span><input id="company-search" type="search" placeholder="Company or ticker"></div>
       </div>
+      <button type="button" class="reset-filters" hidden>Reset filters</button>
     </div>
+    <nav class="view-nav" aria-label="Research views">
+      <button type="button" data-view="overview" aria-controls="view-overview" aria-pressed="true">Overview</button>
+      <button type="button" data-view="companies" aria-controls="view-companies" aria-pressed="false">Companies</button>
+      <button type="button" data-view="compare" aria-controls="view-compare" aria-pressed="false">Compare</button>
+    </nav>
+    <section id="view-overview" data-panel="overview" aria-label="Overview">
+      <div class="scatter-panel">
+        <div class="chart-heading">
+          <div>
+            <h3>Explore DuPont drivers</h3>
+            <p class="chart-description scatter-description"></p>
+          </div>
+          <label class="chart-control">Chart view
+            <select class="chart-mode">
+              <option value="operations">Margin vs. asset turnover</option>
+              <option value="leverage">ROE vs. equity multiplier</option>
+              <option value="retention">ROE vs. interest burden</option>
+            </select>
+          </label>
+        </div>
+        <div class="scatter-wrap">
+          <canvas class="scatter-canvas" aria-describedby="scatter-help"></canvas>
+          <div class="scatter-tooltip" role="tooltip" hidden></div>
+        </div>
+        <div class="scatter-legend" aria-label="Scatter plot legend"></div>
+        <p class="chart-description" id="scatter-help">Select a dot to open the company. With keyboard focus on the chart, use the arrow keys to browse and Enter to open.</p>
+      </div>
+      <div class="overview-summary">
+        <section class="sector-panel" aria-labelledby="sector-chart-title">
+          <h3 id="sector-chart-title">Verdicts by sector</h3>
+          <p class="chart-description">Each bar shows the mix of verdicts within a sector. Select a sector to focus the dashboard on it.</p>
+          <div class="sector-chart"></div>
+        </section>
+        <section class="verdict-breakdown" aria-labelledby="verdict-chart-title">
+          <h3 id="verdict-chart-title">Verdict breakdown</h3>
+          <p class="chart-description">Select a verdict to filter the charts and company table.</p>
+          <div class="verdict-bars"></div>
+          <button type="button" class="clear-verdict-filter" hidden>Clear verdict filter ×</button>
+        </section>
+      </div>
+      <details class="chart-guide">
+        <summary>How to read the DuPont analysis</summary>
+        <dl>
+          <div><dt>Tax burden</dt><dd>Net income ÷ earnings before tax. It shows the share of pre-tax earnings that becomes net income.</dd></div>
+          <div><dt>Interest burden</dt><dd>Earnings before tax ÷ EBIT. It shows how much operating profit remains before tax.</dd></div>
+          <div><dt>Operating margin</dt><dd>EBIT ÷ revenue. It measures operating profit per rupee of sales.</dd></div>
+          <div><dt>Asset turnover</dt><dd>Revenue ÷ average assets. It measures the sales generated per rupee of assets.</dd></div>
+          <div><dt>Equity multiplier</dt><dd>Average assets ÷ average equity. A higher multiple indicates more assets per rupee of equity.</dd></div>
+          <div><dt>Return on equity (ROE)</dt><dd>The product of the five factors. See the company details to learn what drove its verdict and whether period-end balances were used.</dd></div>
+        </dl>
+      </details>
+    </section>
+    <section id="view-companies" data-panel="companies" aria-label="Companies" hidden>
     <div class="table-wrap" tabindex="0" aria-label="Scrollable company results">
       <table>
         <thead><tr>
@@ -50,6 +103,16 @@
       <span class="page-range" aria-live="polite"></span>
       <div><button type="button" class="prev">Previous</button><span class="page-index"></span><button type="button" class="next">Next</button></div>
     </div>
+    </section>
+    <section id="view-compare" data-panel="compare" aria-labelledby="compare-title" hidden>
+      <h3 id="compare-title">Compare two companies</h3>
+      <p class="chart-description">Choose any two companies to compare their factors and ROE. Bar lengths are comparable within each factor, and the labels show the actual values.</p>
+      <div class="comparison-pickers">
+        <label class="chart-control">Company A<select class="comparison-select" data-company="a"><option value="">Select a company</option></select></label>
+        <label class="chart-control">Company B<select class="comparison-select" data-company="b"><option value="">Select a company</option></select></label>
+      </div>
+      <div class="comparison-results"></div>
+    </section>
   </div>
   <dialog class="drawer" aria-labelledby="drawer-title">
     <div class="drawer-content">
@@ -61,8 +124,15 @@
         <div><div class="rule-heading"></div><p class="rule-reason"></p></div>
         <div class="headline-metrics"></div>
       </div>
-      <div class="ratio-grid"></div>
-      <div class="row-notes"></div>
+      <div class="peer-slot"></div>
+      <details class="drawer-section">
+        <summary>DuPont factor explanations</summary>
+        <div class="ratio-grid"></div>
+      </details>
+      <details class="drawer-section">
+        <summary>Financial inputs and sources</summary>
+        <div class="row-notes"></div>
+      </details>
     </div>
   </dialog>
 </section>
